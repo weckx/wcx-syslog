@@ -1,0 +1,19 @@
+{
+    "name": "weckx/php-syslog-sender",
+    "description": "Simple library to send Syslog messages. Supports RFC5424 and RFC3162",
+    "type": "library",
+     "authors": [
+        {
+            "name": "Felipe Weckx",
+            "email": "felipe@weckx.net"
+        }
+    ],
+    "homepage": "http://github.com/weckx",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "autoload": {
+        "psr-0": { "Weckx\\Syslog": "library/" }
+    }
+}

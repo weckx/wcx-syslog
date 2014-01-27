@@ -1,0 +1,80 @@
+<?php
+/**
+ * php-syslog-sender
+ *
+ * LICENSE
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2013 Felipe Weckx
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @category   System
+ * @package    Syslog
+ * @copyright  Copyright (c) 2014 Felipe Weckx
+ * @license    http://opensource.org/licenses/MIT The MIT License
+ * @author Felipe Weckx <felipe@weckx.net>
+ */
+namespace Weckx\Syslog\Transport;
+
+use Weckx\Syslog\Message\MessageInterface;
+
+/**
+ * Transport to send messages through the TCP protocol
+ *
+ * @author Felipe Weckx <felipe@weckx.net>
+ */
+class Tcp implements TransportInterface
+{
+    const DEFAULT_TCP_PORT = 514;
+
+    /**
+     * Send the syslog to target host using the UDP protocol. Note that the UDP protocol
+     * is stateless, which means we can't confirm that the message was received by the
+     * other end
+     * @param  MessageInterface $message
+     * @param  string           $target  Host:port, if port not specified uses default 514
+     * @return void
+     * @throws \Exception\RuntimeException If there's an error creating the socket
+     */
+    public function send(MessageInterface $message, $target)
+    {
+        //Add EOL to message so the receiver knows it has ended
+        $msg = $message->toString() . "\n";
+
+        list($host, $port) = explode(':', $target);
+        if (!$port) {
+            $port = self::DEFAULT_UDP_PORT;
+        }
+
+        $sock = fsockopen($host, $port, $errorCode, $errorMsg, $timeout);
+        if ($sock === false) {
+            throw new \Exception\RuntimeException("Error connecting to {$server}: [{$errorCode}] {$errorMsg}");
+        }
+
+        $written = fwrite($sock, $msg);
+        fclose($sock);
+
+        if ($written != strlen($msg)) {
+            throw new \Exception\RuntimeException("Error sending message to {$server} not all bytes sent.");
+        }
+
+        return $this;
+    }
+}
