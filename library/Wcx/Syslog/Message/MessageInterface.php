@@ -31,18 +31,16 @@
  * @license    http://opensource.org/licenses/MIT The MIT License
  * @author Felipe Weckx <felipe@weckx.net>
  */
-namespace Weckx\Syslog\Transport;
+namespace Wcx\Syslog\Message;
 
 /**
- * Interface for transport os syslog messages
+ * Interface for syslog messages
  */
-interface TransportInterface
+interface MessageInterface
 {
     /**
-     * Sends a message through the transport
-     * @param  Weckx\Syslog\Message $message
-     * @return void
-     * @throws Exception\RuntimeException If an error occurs on sending the message
+     * Returns the message string
+     * @return string
      */
-    public function send($message);
+    public function getMessageString();
 }

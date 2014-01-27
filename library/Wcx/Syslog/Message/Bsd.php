@@ -6,7 +6,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Felipe Weckx
+ * Copyright (c) 2014 Felipe Weckx
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,20 +27,20 @@
  *
  * @category   System
  * @package    Syslog
- * @copyright  Copyright (c) 2014 Felipe Weckx
+ * @copyright  Copyright (c) 2013 Felipe Weckx
  * @license    http://opensource.org/licenses/MIT The MIT License
  * @author Felipe Weckx <felipe@weckx.net>
  */
-namespace Weckx\Syslog\Message;
+
+namespace Wcx\Syslog\Message;
 
 /**
- * Interface for syslog messages
+ * BSD Syslog Message acording to RFC3164. Note that this is and old format and
+ * should only be used to send messages to legacy syslog servers that do not support the
+ * new RFC5424 format.
+ *
+ * @author Felipe Weckx <felipe@weckx.net>
  */
-interface MessageInterface
+class Bsd extends MessageAbstract
 {
-    /**
-     * Returns the message string
-     * @return string
-     */
-    public function getMessageString();
 }

@@ -1,14 +1,7 @@
-##php-syslog-sender
+##wcx-syslog
 =================
 
-Simple classes to send messages to arbitrary syslog servers according to RFC5424 or RFC3164.
-There are two classes: \SyslogMessage\Message, which the preferred and creates messages according
-to the RFC5424 (http://tools.ietf.org/html/rfc5424) and \SyslogMessage\BsdMessage which creates messages
-according to RFC3164 (http://tools.ietf.org/html/rfc3164).
-
-The two classes are completely independent, so you can use just the one you want (or both).
-
-The messages can be sent through UDP or TCP, just use the sendUdp or sendTcp methods.
+Simple classes to send messages to arbitrary syslog servers according to RFC5424 or RFC3164. Messages can be sent using TCP or UDP. Extensible through creation of new Transporter classes.
 
 Sample usage:
 

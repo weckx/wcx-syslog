@@ -31,7 +31,7 @@
  * @license    http://opensource.org/licenses/MIT The MIT License
  * @author Felipe Weckx <felipe@weckx.net>
  */
-namespace Weckx\Syslog\Transport;
+namespace Wcx\Syslog\Transport;
 
 use Weckx\Syslog\Message\MessageInterface;
 
