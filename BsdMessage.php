@@ -32,7 +32,7 @@
  * @author Felipe Weckx <fweckx@mt4.com.br>
  */
 
-namespace SyslogMessage;
+namespace Weckx\Syslog;
 
 /**
  * BSD Syslog Message acording to RFC3164. Note that this is and old format and
