@@ -29,41 +29,20 @@
  * @package    Syslog
  * @copyright  Copyright (c) 2013 Felipe Weckx
  * @license    http://opensource.org/licenses/MIT The MIT License
- * @author Felipe Weckx <fweckx@mt4.com.br>
+ * @author Felipe Weckx <felipe@weckx.net>
  */
 
-namespace Weckx\Syslog;
+namespace Wcx\Syslog\Message;
 
 /**
- * BSD Syslog Message acording to RFC3164. Note that this is and old format and
- * should only be used to send messages to legacy syslog servers that do not support the
- * new RFC5424 format.
+ * Syslog Message acording to RFC5424 suports all fields and structured data.
  *
- * Messages can be sent through UDP or TCP. Use:
- *
- * <code>
- * <?php
- * //Create the object
- * $message = new \SyslogMessage\BsdMessage();
- *
- * //Set basic message values
- * $message->setPriority(Message::PRIORITY_NOTICE)
- *         ->setFacility(Message::FACILITY_USER)
- *         ->setAppName('php-syslog-sender')
- *         ->setMsg('Test message');
- *
- * //Send to host 192.168.0.1 using UDP
- * $message->sendUdp('192.168.0.1');
- * ?>
- * </code>
- *
- * @author Felipe Weckx <fweckx@mt4.com.br>
- * @version 1.0
+ * @author Felipe Weckx <felipe@weckx.net>
  */
-class BsdMessage
+class Message
 {
     /**
-     * RFC3164 specified facilities
+     * RFC5424 specified facilities
      */
     const FACILITY_KERNEL       = 0;
     const FACILITY_USER         = 1;
@@ -91,7 +70,7 @@ class BsdMessage
     const FACILITY_LOCAL7       = 23;
 
     /**
-     * RFC3164 specified priorities
+     * RFC5424 specified priorities
      */
     const PRIORITY_EMERGENCY = 0;
     const PRIORITY_ALERT     = 1;
@@ -101,6 +80,16 @@ class BsdMessage
     const PRIORITY_NOTICE    = 5;
     const PRIORITY_INFO      = 6;
     const PRIORITY_DEBUG     = 7;
+
+    /**
+     * Value for empty fields
+     */
+    const NILVALUE = '-';
+
+    /**
+     * Syslog message version
+     */
+    const VERSION = '1';
 
     /**
      * Message facility
@@ -115,25 +104,28 @@ class BsdMessage
     protected $_priority = self::PRIORITY_DEBUG;
 
     /**
-     * PRI part of the message
-     * @var int
-     */
-    protected $_pri = null;
-
-    /**
      * Parts of the message header
      * @var array
      */
     protected $_header = array(
-        'TIMESTAMP' => '', 'HOSTNAME' => ''
-    );
-
-    protected $_message = array(
-        'APP-NAME' => '', 'MSG' => ''
+        'PRI' => null, 'TIMESTAMP' => self::NILVALUE, 'HOSTNAME' => self::NILVALUE,
+        'APP-NAME' => self::NILVALUE, 'PROCID' => self::NILVALUE, 'MSGID' => self::NILVALUE
     );
 
     /**
-     * Constructor. Sets the current hostname and timestamp
+     * Structured data for the message
+     * @var array
+     */
+    protected $_structuredData = array();
+
+    /**
+     * The free form message
+     * @var string
+     */
+    protected $_msg = self::NILVALUE;
+
+    /**
+     * Constructor. Initializes the message with the current hostname and timestamp
      */
     public function __construct()
     {
@@ -206,7 +198,7 @@ class BsdMessage
         } else {
             $date = $timestamp;
         }
-        $this->_header['TIMESTAMP'] = $date->format('M d H:i:s');
+        $this->_header['TIMESTAMP'] = $date->format(\DateTime::RFC3339);
         return $this;
     }
 
@@ -236,7 +228,7 @@ class BsdMessage
      */
     public function getAppName()
     {
-        return $this->_message['APP-NAME'];
+        return $this->_header['APP-NAME'];
     }
 
     /**
@@ -246,7 +238,65 @@ class BsdMessage
      */
     public function setAppName($appName)
     {
-        $this->_message['APP-NAME'] = $appName;
+        $this->_header['APP-NAME'] = $appName;
+        return $this;
+    }
+
+    /**
+     * Returns the message procid
+     * @return string
+     */
+    public function getProcId()
+    {
+        return $this->_header['PROCID'];
+    }
+
+    /**
+     * Set the message procid
+     * @var string $procid
+     * @return SyslogMessage
+     */
+    public function setProcId($procid)
+    {
+        $this->_header['PROCID'] = $procid;
+        return $this;
+    }
+
+    /**
+     * Returns the message id
+     * @return string
+     */
+    public function getMsgId()
+    {
+        return $this->_header['MSGID'];
+    }
+
+    /**
+     * Set the message id
+     * @var string $msgId
+     * @return SyslogMessage
+     */
+    public function setMsgId($msgId)
+    {
+        $this->_header['MSGID'] = $msgId;
+        return $this;
+    }
+
+    /**
+     * Add a structured data block
+     * @param string $name   The name of the block. Must be in ASCII and in the format name@number
+     *                       or a default IANA name (see section 7 of RFC5424)
+     *
+     * @param array  $values Array of key-value pairs
+     * @return  Message
+     */
+    public function addStructuredData($name, array $values)
+    {
+        $params = array();
+        foreach ($values as $key => $value) {
+            $params[] = $key . '="' . $value . '"';
+        }
+        $this->_structuredData[] = '[' . $name . ' ' . implode(' ', $params) . ']';
         return $this;
     }
 
@@ -256,7 +306,7 @@ class BsdMessage
      */
     public function getMsg()
     {
-        return $this->_message['MSG'];
+        return $this->_msg;
     }
 
     /**
@@ -266,7 +316,7 @@ class BsdMessage
      */
     public function setMsg($msg)
     {
-        $this->_message['MSG'] = $msg;
+        $this->_msg = $msg;
         return $this;
     }
 
@@ -276,13 +326,13 @@ class BsdMessage
      */
     public function toString()
     {
-        $str = $this->_pri;
-        $str .= implode(' ', $this->_header);
-        if ($this->_message['APP-NAME']) {
-            $str .= ' ' . $this->_message['APP-NAME'] . ': ' . $this->_message['MSG'];
+        $str = implode(' ', $this->_header);
+        if (count($this->_structuredData)) {
+            $str .= ' ' . implode('', $this->_structuredData);
         } else {
-            $str .= ' ' . $this->_message['MSG'];
+            $str .= ' ' . self::NILVALUE;
         }
+        $str .= ' ' . $this->_msg;
         return $str;
     }
 
@@ -354,7 +404,7 @@ class BsdMessage
     protected function _calculatePri()
     {
         $pri = ($this->getFacility() * 8) + $this->getPriority();
-        $this->_pri = '<' . $pri . '>';
+        $this->_header['PRI'] = '<' . $pri . '>' . self::VERSION;
     }
 
     /**
