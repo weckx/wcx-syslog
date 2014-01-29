@@ -11,6 +11,8 @@
 
 namespace Wcx\Syslog\Transport;
 
+use \Wcx\Syslog\Message\MessageInterface;
+
 /**
  * Interface for transport os syslog messages
  */
@@ -22,5 +24,5 @@ interface TransportInterface
      * @return void
      * @throws Exception\RuntimeException If an error occurs on sending the message
      */
-    public function send($message);
+    public function send(MessageInterface $message, $target);
 }

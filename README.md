@@ -6,7 +6,9 @@ Simple classes to send messages to arbitrary syslog servers according to RFC5424
 Sample usage:
 
 ```php
-use Wcx\Syslog\Message\Syslog as SyslogMessage;
+//It's usually better to use the BSD format since it's widely supported
+use Wcx\Syslog\Message\Bsd as SyslogMessage;
+
 //Create the message
 $message = new SyslogMessage();
 

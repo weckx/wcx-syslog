@@ -90,6 +90,26 @@ class Syslog extends MessageAbstract
     }
 
     /**
+     * Returns the name of the application that created the message
+     * @return string
+     */
+    public function getAppName()
+    {
+        return $this->header['APP-NAME'];
+    }
+
+    /**
+     * Set the name of the application that created the message
+     * @var string $appName
+     * @return Bsd
+     */
+    public function setAppName($appName)
+    {
+        $this->header['APP-NAME'] = $appName;
+        return $this;
+    }
+
+    /**
      * Add a structured data block
      * @param string $name   The name of the block. Must be in ASCII and in the format name@number
      *                       or a default IANA name (see section 7 of RFC5424)

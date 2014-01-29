@@ -11,7 +11,7 @@
 
 namespace Wcx\Syslog\Transport;
 
-use Weckx\Syslog\Message\MessageInterface;
+use \Wcx\Syslog\Message\MessageInterface;
 
 /**
  * Transport to send messages through the TCP protocol
@@ -23,34 +23,62 @@ class Tcp implements TransportInterface
     const DEFAULT_TCP_PORT = 514;
 
     /**
+     * Connection timeout
+     * @var int
+     */
+    protected $timeout = 15;
+
+    /**
+     * Retorna the connection timeout
+     * @return int
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * Define the connection timeout
+     * @var int $timeout
+     * @return Tcp
+     */
+    public function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
+        return $this;
+    }
+
+    /**
      * Send the syslog to target host using the UDP protocol. Note that the UDP protocol
      * is stateless, which means we can't confirm that the message was received by the
      * other end
      * @param  MessageInterface $message
      * @param  string           $target  Host:port, if port not specified uses default 514
      * @return void
-     * @throws \Exception\RuntimeException If there's an error creating the socket
+     * @throws \RuntimeException If there's an error creating the socket
      */
     public function send(MessageInterface $message, $target)
     {
         //Add EOL to message so the receiver knows it has ended
-        $msg = $message->toString() . "\n";
+        $msg = $message->getMessageString() . "\n";
 
-        list($host, $port) = explode(':', $target);
-        if (!$port) {
-            $port = self::DEFAULT_UDP_PORT;
+        if (strpos($target, ':')) {
+            list($host, $port) = explode(':', $target);
+        } else {
+            $host = $target;
+            $port = self::DEFAULT_TCP_PORT;
         }
 
-        $sock = fsockopen($host, $port, $errorCode, $errorMsg, $timeout);
+        $sock = fsockopen($host, $port, $errorCode, $errorMsg, $this->timeout);
         if ($sock === false) {
-            throw new \Exception\RuntimeException("Error connecting to {$server}: [{$errorCode}] {$errorMsg}");
+            throw new \RuntimeException("Error connecting to {$server}: [{$errorCode}] {$errorMsg}");
         }
 
         $written = fwrite($sock, $msg);
         fclose($sock);
 
         if ($written != strlen($msg)) {
-            throw new \Exception\RuntimeException("Error sending message to {$server} not all bytes sent.");
+            throw new \RuntimeException("Error sending message to {$server} not all bytes sent.");
         }
 
         return $this;

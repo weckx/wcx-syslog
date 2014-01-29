@@ -11,7 +11,7 @@
 
 namespace Wcx\Syslog\Transport;
 
-use Weckx\Syslog\Message\MessageInterface;
+use \Wcx\Syslog\Message\MessageInterface;
 
 /**
  * Transport to send messages through UDP protocol
@@ -29,13 +29,15 @@ class Udp implements TransportInterface
      * @param  MessageInterface $message
      * @param  string           $target  Host:port, if port not specified uses default 514
      * @return void
-     * @throws \Exception\RuntimeException If there's an error creating the socket
+     * @throws \RuntimeException If there's an error creating the socket
      */
     public function send(MessageInterface $message, $target)
     {
-        $msg = $message->toString();
-        list($host, $port) = explode(':', $target);
-        if (!$port) {
+        $msg = $message->getMessageString();
+        if (strpos($target, ':')) {
+            list($host, $port) = explode(':', $target);
+        } else {
+            $host = $target;
             $port = self::DEFAULT_UDP_PORT;
         }
 
@@ -43,7 +45,7 @@ class Udp implements TransportInterface
         if ($sock === false) {
             $errorCode = socket_last_error();
             $errorMsg = socket_strerror($errorCode);
-            throw new \Exception\RuntimeException("Error creating socket: [$errorCode] $errorMsg");
+            throw new \RuntimeException("Error creating socket: [$errorCode] $errorMsg");
         }
 
         socket_sendto($sock, $msg, strlen($msg), 0, $host, $port);

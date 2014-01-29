@@ -61,6 +61,11 @@ abstract class MessageAbstract implements MessageInterface
     const PRIORITY_DEBUG     = 7;
 
     /**
+     * Default transport class
+     */
+    public static $defaultTransportClass = 'Wcx\Syslog\Transport\Udp';
+
+    /**
      * Message facility
      * @var int
      */
@@ -240,6 +245,7 @@ abstract class MessageAbstract implements MessageInterface
     {
         $str = $this->pri;
         $str .= implode(' ', $this->header);
+
         if ($this->message['APP-NAME']) {
             $str .= ' ' . $this->message['APP-NAME'] . ': ' . $this->message['MSG'];
         } else {
@@ -252,12 +258,16 @@ abstract class MessageAbstract implements MessageInterface
      * Send the message to the specified target (usually host:port). If no transport
      * is specified uses the Weckx\Syslog\Transport\Udp transport
      * @param  string                                 $target    Message destination (host:port)
-     * @param  WeckxSyslogTransportTransportInterface $transport
+     * @param  TransportInterface $transport
      * @return void
      * @throws \Exception\RuntimeException If there's an error
      */
-    public function send($target, Weckx\Syslog\Transport\TransportInterface $transport = null)
+    public function send($target, \Wcx\Syslog\Transport\TransportInterface $transport = null)
     {
+        if (!$transport) {
+            $cls = self::$defaultTransportClass;
+            $transport = new $cls();
+        }
         $transport->send($this, $target);
     }
 
