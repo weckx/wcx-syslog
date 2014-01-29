@@ -55,7 +55,7 @@ class Syslog extends MessageAbstract
      */
     public function getProcId()
     {
-        return $this->_header['PROCID'];
+        return $this->header['PROCID'];
     }
 
     /**
@@ -65,7 +65,7 @@ class Syslog extends MessageAbstract
      */
     public function setProcId($procid)
     {
-        $this->_header['PROCID'] = $procid;
+        $this->header['PROCID'] = $procid;
         return $this;
     }
 
@@ -75,7 +75,7 @@ class Syslog extends MessageAbstract
      */
     public function getMsgId()
     {
-        return $this->_header['MSGID'];
+        return $this->header['MSGID'];
     }
 
     /**
@@ -85,7 +85,7 @@ class Syslog extends MessageAbstract
      */
     public function setMsgId($msgId)
     {
-        $this->_header['MSGID'] = $msgId;
+        $this->header['MSGID'] = $msgId;
         return $this;
     }
 
@@ -103,7 +103,7 @@ class Syslog extends MessageAbstract
         foreach ($values as $key => $value) {
             $params[] = $key . '="' . $value . '"';
         }
-        $this->_structuredData[] = '[' . $name . ' ' . implode(' ', $params) . ']';
+        $this->structuredData[] = '[' . $name . ' ' . implode(' ', $params) . ']';
         return $this;
     }
 
@@ -113,7 +113,7 @@ class Syslog extends MessageAbstract
      */
     public function getMsg()
     {
-        return $this->_msg;
+        return $this->msg;
     }
 
     /**
@@ -123,7 +123,7 @@ class Syslog extends MessageAbstract
      */
     public function setMsg($msg)
     {
-        $this->_msg = $msg;
+        $this->msg = $msg;
         return $this;
     }
 
@@ -133,13 +133,13 @@ class Syslog extends MessageAbstract
      */
     public function getMessageString()
     {
-        $str = implode(' ', $this->_header);
-        if (count($this->_structuredData)) {
-            $str .= ' ' . implode('', $this->_structuredData);
+        $str = implode(' ', $this->header);
+        if (count($this->structuredData)) {
+            $str .= ' ' . implode('', $this->structuredData);
         } else {
             $str .= ' ' . self::NILVALUE;
         }
-        $str .= ' ' . $this->_msg;
+        $str .= ' ' . $this->msg;
         return $str;
     }
 }

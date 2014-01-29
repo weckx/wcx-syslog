@@ -9,7 +9,7 @@
  * @author Felipe Weckx <felipe@weckx.net>
  */
 
-namespace Wcx\Syslog;
+namespace Wcx\Syslog\Message;
 
 /**
  * BSD Syslog Message acording to RFC3164. Note that this is and old format and
@@ -64,13 +64,13 @@ abstract class MessageAbstract implements MessageInterface
      * Message facility
      * @var int
      */
-    protected $facility = self::FACILITY_LOCAL4;
+    protected $facility = self::FACILITY_USER;
 
     /**
      * Message Priority
      * @var int
      */
-    protected $priority = self::PRIORITY_DEBUG;
+    protected $priority = self::PRIORITY_NOTICE;
 
     /**
      * PRI part of the message
@@ -101,7 +101,7 @@ abstract class MessageAbstract implements MessageInterface
     {
         $this->setHostname(php_uname('n'));
         $this->setTimestamp(new \DateTime());
-        $this->_calculatePri();
+        $this->calculatePri();
     }
 
     /**
@@ -110,7 +110,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getFacility()
     {
-        return $this->_facility;
+        return $this->facility;
     }
 
     /**
@@ -120,8 +120,8 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function setFacility($facility)
     {
-        $this->_facility = $facility;
-        $this->_calculatePri();
+        $this->facility = $facility;
+        $this->calculatePri();
         return $this;
     }
 
@@ -131,7 +131,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getPriority()
     {
-        return $this->_priority;
+        return $this->priority;
     }
 
     /**
@@ -141,8 +141,8 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function setPriority($priority)
     {
-        $this->_priority = $priority;
-        $this->_calculatePri();
+        $this->priority = $priority;
+        $this->calculatePri();
         return $this;
     }
 
@@ -152,7 +152,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getTimestamp()
     {
-        return $this->_header['TIMESTAMP'];
+        return $this->header['TIMESTAMP'];
     }
 
     /**
@@ -168,7 +168,7 @@ abstract class MessageAbstract implements MessageInterface
         } else {
             $date = $timestamp;
         }
-        $this->_header['TIMESTAMP'] = $date->format('M d H:i:s');
+        $this->header['TIMESTAMP'] = $date->format('M d H:i:s');
         return $this;
     }
 
@@ -178,7 +178,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getHostname()
     {
-        return $this->_header['HOSTNAME'];
+        return $this->header['HOSTNAME'];
     }
 
     /**
@@ -188,7 +188,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function setHostname($hostname)
     {
-        $this->_header['HOSTNAME'] = $hostname;
+        $this->header['HOSTNAME'] = $hostname;
         return $this;
     }
 
@@ -198,7 +198,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getAppName()
     {
-        return $this->_message['APP-NAME'];
+        return $this->message['APP-NAME'];
     }
 
     /**
@@ -208,7 +208,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function setAppName($appName)
     {
-        $this->_message['APP-NAME'] = $appName;
+        $this->message['APP-NAME'] = $appName;
         return $this;
     }
 
@@ -218,7 +218,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getMsg()
     {
-        return $this->_message['MSG'];
+        return $this->message['MSG'];
     }
 
     /**
@@ -228,7 +228,7 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function setMsg($msg)
     {
-        $this->_message['MSG'] = $msg;
+        $this->message['MSG'] = $msg;
         return $this;
     }
 
@@ -238,12 +238,12 @@ abstract class MessageAbstract implements MessageInterface
      */
     public function getMessageString()
     {
-        $str = $this->_pri;
-        $str .= implode(' ', $this->_header);
-        if ($this->_message['APP-NAME']) {
-            $str .= ' ' . $this->_message['APP-NAME'] . ': ' . $this->_message['MSG'];
+        $str = $this->pri;
+        $str .= implode(' ', $this->header);
+        if ($this->message['APP-NAME']) {
+            $str .= ' ' . $this->message['APP-NAME'] . ': ' . $this->message['MSG'];
         } else {
-            $str .= ' ' . $this->_message['MSG'];
+            $str .= ' ' . $this->message['MSG'];
         }
         return $str;
     }
@@ -265,9 +265,9 @@ abstract class MessageAbstract implements MessageInterface
      * Calculate the PRI value for the header (facility*8 + priority)
      * @return void
      */
-    protected function _calculatePri()
+    protected function calculatePri()
     {
         $pri = ($this->getFacility() * 8) + $this->getPriority();
-        $this->_pri = '<' . $pri . '>';
+        $this->pri = '<' . $pri . '>';
     }
 }
