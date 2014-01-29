@@ -12,6 +12,6 @@
         }
     ],
     "autoload": {
-        "psr-4" : {"Wcx" : "library/"}
+        "psr-0" : {"Wcx\\" : "library/"}
     }
 }
