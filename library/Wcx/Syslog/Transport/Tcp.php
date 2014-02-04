@@ -49,9 +49,8 @@ class Tcp implements TransportInterface
     }
 
     /**
-     * Send the syslog to target host using the UDP protocol. Note that the UDP protocol
-     * is stateless, which means we can't confirm that the message was received by the
-     * other end
+     * Send the syslog to target host using the TCP protocol.Automatically adds a \n character to end
+     * of the message string
      * @param  MessageInterface $message
      * @param  string           $target  Host:port, if port not specified uses default 514
      * @return void
